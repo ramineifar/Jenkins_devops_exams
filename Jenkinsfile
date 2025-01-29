@@ -40,7 +40,7 @@ pipeline {
                         script {
                             sh '''
                             docker run -d -p 8001:8000 --name movies $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG
-                            sleep 15
+                            sleep 10
                             '''
                         }
                     }
@@ -50,7 +50,7 @@ pipeline {
                         script {
                             sh '''
                             docker run -d -p 8002:8000 --name casts $DOCKER_ID/$DOCKER_CASTS_IMAGE:$DOCKER_TAG
-                            sleep 15
+                            sleep 10
                             '''
                         }
                     }
@@ -119,9 +119,9 @@ pipeline {
                     mkdir .kube
                     ls
                     cat $KUBECONFIG > .kube/config
-                    cp charts/values.yaml values.yml
+                    cp fastapiapp/values.yaml values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace dev
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace dev --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
@@ -138,9 +138,9 @@ pipeline {
                     mkdir .kube
                     ls
                     cat $KUBECONFIG > .kube/config
-                    cp charts/values.yaml values.yml
+                    cp fastapiapp/values.yaml values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace qa
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace qa --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
@@ -156,10 +156,10 @@ pipeline {
                     mkdir .kube
                     ls
                     cat $KUBECONFIG > .kube/config
-                    cp charts/values.yaml values.yml
+                    cp fastapiapp/values.yaml values.yml
                     cat values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace staging
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace staging --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
@@ -181,10 +181,10 @@ pipeline {
                     mkdir .kube
                     ls
                     cat $KUBECONFIG > .kube/config
-                    cp charts/values.yaml values.yml
+                    cp fastapiapp/values.yaml values.yml
                     cat values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace prod
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace prod --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
