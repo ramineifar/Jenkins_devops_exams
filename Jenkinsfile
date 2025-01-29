@@ -13,9 +13,9 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                 docker rm -f movies
-                                 docker build -t $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG ./movie-service/
-                                 sleep 6
+                             docker rm -f movies
+                             docker build -t $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG ./movie-service/
+                             sleep 6
                             '''
                         }
                     }
@@ -24,9 +24,9 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                 docker rm -f casts
-                                 docker build -t $DOCKER_ID/$DOCKER_CASTS_IMAGE:$DOCKER_TAG ./cast-service/
-                                 sleep 6
+                             docker rm -f casts
+                             docker build -t $DOCKER_ID/$DOCKER_CASTS_IMAGE:$DOCKER_TAG ./cast-service/
+                             sleep 6
                             '''
                         }
                     }
@@ -39,8 +39,8 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                docker run -d -p 8001:8000 --name movies $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG
-                                sleep 15
+                            docker run -d -p 8001:8000 --name movies $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG
+                            sleep 15
                             '''
                         }
                     }
@@ -49,8 +49,8 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                docker run -d -p 8002:8000 --name casts $DOCKER_ID/$DOCKER_CASTS_IMAGE:$DOCKER_TAG
-                                sleep 15
+                            docker run -d -p 8002:8000 --name casts $DOCKER_ID/$DOCKER_CASTS_IMAGE:$DOCKER_TAG
+                            sleep 15
                             '''
                         }
                     }
@@ -65,8 +65,7 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                docker run -d -p 8001:8000 --name movies $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG
-                                sleep 15
+                            curl localhost:8001
                             '''
                         }
                     }
@@ -75,8 +74,7 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                curl localhost:8001
-                                curl localhost:8002
+                            curl localhost:8002
                             '''
                         }
                     }
@@ -94,8 +92,8 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                docker login -u $DOCKER_ID -p $DOCKER_PASS
-                                docker push $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG
+                            docker login -u $DOCKER_ID -p $DOCKER_PASS
+                            docker push $DOCKER_ID/$DOCKER_MOVIES_IMAGE:$DOCKER_TAG
                             '''
                         }
                     }
@@ -104,8 +102,8 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                                docker login -u $DOCKER_ID -p $DOCKER_PASS
-                                docker push $DOCKER_ID/$DOCKER_CASTS_IMAGE:$DOCKER_TAG
+                            docker login -u $DOCKER_ID -p $DOCKER_PASS
+                            docker push $DOCKER_ID/$DOCKER_CASTS_IMAGE:$DOCKER_TAG
                             '''
                         }
                     }
@@ -116,19 +114,39 @@ pipeline {
         stage('Deploiement en dev'){
             environment
             {
-            KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
             }
             steps {
                 script {
-                sh '''
-                rm -Rf .kube
-                mkdir .kube
-                ls
-                cat $KUBECONFIG > .kube/config
-                cp charts/values.yaml values.yml
-                sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                helm upgrade --install fastapiapp ./charts --values=values.yml --namespace dev
-                '''
+                    sh '''
+                    rm -Rf .kube
+                    mkdir .kube
+                    ls
+                    cat $KUBECONFIG > .kube/config
+                    cp charts/values.yaml values.yml
+                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace dev
+                    '''
+                }
+            }
+        }
+
+        stage('Deploiement en QA'){
+            environment
+            {
+                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            }
+            steps {
+                script {
+                    sh '''
+                    rm -Rf .kube
+                    mkdir .kube
+                    ls
+                    cat $KUBECONFIG > .kube/config
+                    cp charts/values.yaml values.yml
+                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace qa
+                    '''
                 }
             }
         }
@@ -139,16 +157,16 @@ pipeline {
             }
             steps {
                 script {
-                sh '''
-                rm -Rf .kube
-                mkdir .kube
-                ls
-                cat $KUBECONFIG > .kube/config
-                cp charts/values.yaml values.yml
-                cat values.yml
-                sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                helm upgrade --install fastapiapp ./charts --values=values.yml --namespace staging
-                '''
+                    sh '''
+                    rm -Rf .kube
+                    mkdir .kube
+                    ls
+                    cat $KUBECONFIG > .kube/config
+                    cp charts/values.yaml values.yml
+                    cat values.yml
+                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace staging
+                    '''
                 }
             }
         }
@@ -161,23 +179,20 @@ pipeline {
                 KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
             }
             steps {
-            // Create an Approval Button with a timeout of 15minutes.
-            // this require a manuel validation in order to deploy on production environment
-                    timeout(time: 15, unit: "MINUTES") {
-                        input message: 'Do you want to deploy in production ?', ok: 'Yes'
-                    }
-
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Do you want to deploy in production ?', ok: 'Yes'
+                }
                 script {
-                sh '''
-                rm -Rf .kube
-                mkdir .kube
-                ls
-                cat $KUBECONFIG > .kube/config
-                cp charts/values.yaml values.yml
-                cat values.yml
-                sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                helm upgrade --install fastapiapp ./charts --values=values.yml --namespace prod
-                '''
+                    sh '''
+                    rm -Rf .kube
+                    mkdir .kube
+                    ls
+                    cat $KUBECONFIG > .kube/config
+                    cp charts/values.yaml values.yml
+                    cat values.yml
+                    sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
+                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace prod
+                    '''
                 }
             }
         }
