@@ -3,25 +3,25 @@
 apiVersion: apps/v1
 kind: {{ .kind }}
 metadata:
-  name: {{ .name }}-deployment
+  name: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
   labels:
-    app: {{ .name }}-deployment
+    app: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .name }}-deployment
+      app: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
   template:
     metadata:
       labels:
-        app: {{ .name }}-deployment
+        app: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
     spec:
       {{- with .initContainers }}
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .name }}-container
+        - name: {{ include "exam.fullname" $ }}-{{ .name }}-container
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: {{ .image.pullPolicy }}
           {{- if .command }}

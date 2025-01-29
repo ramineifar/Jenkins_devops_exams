@@ -4,9 +4,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .name }}-pvc
+  name: {{ include "exam.fullname" $ }}-{{ .name }}-pvc
   labels:
-    app: {{ .name }}-pvc
+    app: {{ include "exam.fullname" $ }}-{{ .name }}-pvc
 spec:
   storageClassName: {{ .persistentVolumeClaim.storageClassName }}
   accessModes:

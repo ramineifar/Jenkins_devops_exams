@@ -5,9 +5,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ $application.name }}-service
+  name: {{ include "exam.fullname" $ }}-{{ $application.name }}-service
   labels:
-    app: {{ $application.name }}-service
+    app: {{ include "exam.fullname" $ }}-{{ $application.name }}-service
 spec:
   {{- if .allocateLoadBalancerNodePorts }}
   allocateLoadBalancerNodePorts: {{ .allocateLoadBalancerNodePorts }}
@@ -20,7 +20,7 @@ spec:
   ports:
     {{- toYaml .ports | nindent 4 }}
   selector:
-    app: {{ $application.name }}-deployment
+    app: {{ include "exam.fullname" $ }}-{{ $application.name }}-deployment
   {{- end }}
   {{- end }}
   {{- end }}

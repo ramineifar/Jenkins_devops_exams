@@ -6,6 +6,6 @@ data:
   {{- toYaml .configmap.data | nindent 2 }}
 kind: ConfigMap
 metadata:
-  name: {{ .name }}-configmap
+  name: {{ include "exam.fullname" $ }}-{{ .name }}-configmap
 {{- end }}
 {{- end }}
