@@ -1,15 +1,15 @@
 pipeline {
-    environment { // Declaration of environment variables
-    DOCKER_ID = "ramineifar" // replace this with your docker-id
-    DOCKER_MOVIES_IMAGE = "movie-service"
-    DOCKER_CASTS_IMAGE = "cast-movie"
-    DOCKER_TAG = "v.${BUILD_ID}.0" // we will tag our images with the current build in order to increment the value by 1 with each new build
+    environment {
+        DOCKER_ID = "ramineifar"
+        DOCKER_MOVIES_IMAGE = "movie-service"
+        DOCKER_CASTS_IMAGE = "cast-movie"
+        DOCKER_TAG = "v.${BUILD_ID}.0"
     }
-    agent any // Jenkins will be able to select all available agents
+    agent any
     stages {
-        stage(' Docker Build'){ // docker build image stage
+        stage(' Docker Build'){
             parallel {
-                stage('Movies')
+                stage('Movies'){
                     steps {
                         script {
                             sh '''
@@ -20,7 +20,7 @@ pipeline {
                         }
                     }
                 }
-                stage('Casts')
+                stage('Casts'){
                     steps {
                         script {
                             sh '''
@@ -33,7 +33,7 @@ pipeline {
                 }
             }
         }
-        stage('Docker run'){ // run container from our builded image
+        stage('Docker run'){
             parallel {
                 stage('Movies'){
                     steps {
@@ -55,11 +55,10 @@ pipeline {
                         }
                     }
                 }
-
             }
         }
 
-        stage('Test Acceptance'){ // we launch the curl command to validate that the container responds to the request
+        stage('Test Acceptance'){
             parallel {
                 stage('Movies'){
                     steps {
@@ -79,13 +78,11 @@ pipeline {
                         }
                     }
                 }
-
             }
         }
-        stage('Docker Push'){ //we pass the built image to our docker hub account
-            environment
-            {
-                DOCKER_PASS = credentials("DOCKER_HUB_PASS") // we retrieve  docker password from secret text called docker_hub_pass saved on jenkins
+        stage('Docker Push'){
+            environment {
+                DOCKER_PASS = credentials("DOCKER_HUB_PASS")
             }
             parallel {
                 stage('Movies') {
@@ -112,9 +109,8 @@ pipeline {
         }
 
         stage('Deploiement en dev'){
-            environment
-            {
-                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            environment {
+                KUBECONFIG = credentials("config")
             }
             steps {
                 script {
@@ -132,9 +128,8 @@ pipeline {
         }
 
         stage('Deploiement en QA'){
-            environment
-            {
-                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            environment {
+                KUBECONFIG = credentials("config")
             }
             steps {
                 script {
@@ -151,9 +146,8 @@ pipeline {
             }
         }
         stage('Deploiement en staging'){
-            environment
-            {
-                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            environment {
+                KUBECONFIG = credentials("config")
             }
             steps {
                 script {
@@ -174,9 +168,8 @@ pipeline {
             when {
                 branch 'master'
             }
-            environment
-            {
-                KUBECONFIG = credentials("config") // we retrieve  kubeconfig from secret file called config saved on jenkins
+            environment {
+                KUBECONFIG = credentials("config")
             }
             steps {
                 timeout(time: 15, unit: "MINUTES") {
