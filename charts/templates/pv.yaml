@@ -1,0 +1,19 @@
+{{- range .Values.applications }}
+{{- if .persistentVolume }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .name }}-pv
+  labels:
+    app: {{ .name }}-pv
+spec:
+  storageClassName: {{ .persistentVolume.storageClassName }}
+  capacity:
+    storage: {{ .persistentVolume.capacity }}
+  accessModes:
+    {{- toYaml .persistentVolume.accessModes | nindent 4 }}
+  hostPath:
+    path: {{ .persistentVolume.hostPath }}
+{{- end }}
+{{- end }}

@@ -1,16 +1,26 @@
+{{- range $application := .Values.applications }}
+{{- if .services }}
+---
+{{- range .services }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "fastapiapp.fullname" . }}
+  name: {{ $application.name }}-service
   labels:
-    {{- include "fastapiapp.labels" . | nindent 4 }}
+    app: {{ $application.name }}-service
 spec:
-  type: {{ .Values.service.type }}
+  {{- if .allocateLoadBalancerNodePorts }}
+  allocateLoadBalancerNodePorts: {{ .allocateLoadBalancerNodePorts }}
+  {{- end }}
+  {{- if .type }}
+  type: {{ .type }}
+  {{- else }}
+  type: {{ $.Values.service.type }}
+  {{- end }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
-      nodePort: {{ .Values.service.nodePort }}
-      protocol: TCP
-      name: http
+    {{- toYaml .ports | nindent 4 }}
   selector:
-    {{- include "fastapiapp.selectorLabels" . | nindent 4 }}
+    app: {{ $application.name }}-deployment
+  {{- end }}
+  {{- end }}
+  {{- end }}
