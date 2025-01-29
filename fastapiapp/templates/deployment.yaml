@@ -3,25 +3,25 @@
 apiVersion: apps/v1
 kind: {{ .kind }}
 metadata:
-  name: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
+  name: {{ include "fastapiapp.fullname" $ }}-{{ .name }}-deployment
   labels:
-    app: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
+    app: {{ include "fastapiapp.fullname" $ }}-{{ .name }}-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
+      app: {{ include "fastapiapp.fullname" $ }}-{{ .name }}-deployment
   template:
     metadata:
       labels:
-        app: {{ include "exam.fullname" $ }}-{{ .name }}-deployment
+        app: {{ include "fastapiapp.fullname" $ }}-{{ .name }}-deployment
     spec:
       {{- with .initContainers }}
       initContainers:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ include "exam.fullname" $ }}-{{ .name }}-container
+        - name: {{ include "fastapiapp.fullname" $ }}-{{ .name }}-container
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: {{ .image.pullPolicy }}
           {{- if .command }}

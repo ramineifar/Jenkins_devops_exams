@@ -121,7 +121,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp charts/values.yaml values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace dev
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace dev
                     '''
                 }
             }
@@ -140,7 +140,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp charts/values.yaml values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace qa
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace qa
                     '''
                 }
             }
@@ -159,7 +159,7 @@ pipeline {
                     cp charts/values.yaml values.yml
                     cat values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace staging
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace staging
                     '''
                 }
             }
@@ -184,7 +184,7 @@ pipeline {
                     cp charts/values.yaml values.yml
                     cat values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install fastapiapp ./charts --values=values.yml --namespace prod
+                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace prod
                     '''
                 }
             }

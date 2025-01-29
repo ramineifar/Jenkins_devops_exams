@@ -9,14 +9,14 @@ applications:
       pullPolicy: IfNotPresent
     envFrom:
       - secretRef:
-          name: postgresm-secret
+          name: exam-fastapiapp-postgresm-secret
     volumeMounts:
       - mountPath: /var/lib/postgresql/data
         name: postgresm-volume-data
     volumes:
       - name: postgresm-volume-data
         persistentVolumeClaim:
-          claimName: postgresm-pvc
+          claimName: exam-fastapiapp-postgresm-pvc
     services:
       - type: ClusterIP
         ports:
@@ -51,14 +51,14 @@ applications:
       pullPolicy: IfNotPresent
     envFrom:
       - secretRef:
-          name: postgresc-secret
+          name: exam-fastapiapp-postgresc-secret
     volumeMounts:
       - mountPath: /var/lib/postgresql/data
         name: postgresc-volume-data
     volumes:
       - name: postgresc-volume-data
         persistentVolumeClaim:
-          claimName: postgresc-pvc
+          claimName: exam-fastapiapp-postgresc-pvc
     services:
       - type: ClusterIP
         ports:
@@ -91,7 +91,7 @@ applications:
     initContainers:
       - name: wait-for-db
         image: busybox
-        command: [ 'sh', '-c', 'until nc -z -v -w30 postgresm-service 5432; do echo "Waiting for database connection..."; sleep 5; done;' ]
+        command: [ 'sh', '-c', 'until nc -z -v -w30 exam-fastapiapp-postgresm-service 5432; do echo "Waiting for database connection..."; sleep 5; done;' ]
     image:
       repository: ramineifar/movie-service
       tag: latest
@@ -104,12 +104,12 @@ applications:
         allocateLoadBalancerNodePorts: false
     envFrom:
       - secretRef:
-          name: movies-secret
+          name: exam-fastapiapp-movies-secret
     secret:
       type: Opaque
       data:
-        DATABASE_URI: cG9zdGdyZXNxbDovL21vdmllX2RiX3VzZXJuYW1lOm1vdmllX2RiX3Bhc3N3b3JkQHBvc3RncmVzbS1zZXJ2aWNlOjU0MzIvbW92aWVfZGJfZGV2
-        CAST_SERVICE_HOST_URL: aHR0cDovL2Nhc3RzLXNlcnZpY2U6ODAwMi9hcGkvdjEvY2FzdHMv
+        DATABASE_URI: cG9zdGdyZXNxbDovL21vdmllX2RiX3VzZXJuYW1lOm1vdmllX2RiX3Bhc3N3b3JkQGV4YW0tZmFzdGFwaWFwcC1wb3N0Z3Jlc20tc2VydmljZTo1NDMyL21vdmllX2RiX2Rldg==
+        CAST_SERVICE_HOST_URL: aHR0cDovL2V4YW0tZmFzdGFwaWFwcC1jYXN0cy1zZXJ2aWNlOjgwMDIvYXBpL3YxL2Nhc3RzLw==
 
   - name: casts
     kind: Deployment
@@ -118,18 +118,18 @@ applications:
     initContainers:
       - name: wait-for-db
         image: busybox
-        command: [ 'sh', '-c', 'until nc -z -v -w30 postgresc-service 5432; do echo "Waiting for database connection..."; sleep 5; done;' ]
+        command: [ 'sh', '-c', 'until nc -z -v -w30 exam-fastapiapp-postgresc-service 5432; do echo "Waiting for database connection..."; sleep 5; done;' ]
     image:
       repository: ramineifar/cast-service
       tag: latest
       pullPolicy: IfNotPresent
     envFrom:
       - secretRef:
-          name: casts-secret
+          name: exam-fastapiapp-casts-secret
     secret:
       type: Opaque
       data:
-        DATABASE_URI: cG9zdGdyZXNxbDovL21vdmllX2RiX3VzZXJuYW1lOm1vdmllX2RiX3Bhc3N3b3JkQHBvc3RncmVzbS1zZXJ2aWNlOjU0MzIvbW92aWVfZGJfZGV2
+        DATABASE_URI: cG9zdGdyZXNxbDovL21vdmllX2RiX3VzZXJuYW1lOm1vdmllX2RiX3Bhc3N3b3JkQGV4YW0tZmFzdGFwaWFwcC1wb3N0Z3Jlc20tc2VydmljZTo1NDMyL21vdmllX2RiX2Rldg==
     services:
       - ports:
           - port: 8002
@@ -153,10 +153,10 @@ applications:
         nginx_config.conf: "server {
           listen 8080;
           location /api/v1/movies {
-            proxy_pass http://movies-service:8001/api/v1/movies;
+            proxy_pass http://exam-fastapiapp-movies-service:8001/api/v1/movies;
           }
           location /api/v1/casts {
-            proxy_pass http://casts-service:8002/api/v1/casts;
+            proxy_pass http://exam-fastapiapp-casts-service:8002/api/v1/casts;
           }
         }"
     volumeMounts:
@@ -165,7 +165,7 @@ applications:
     volumes:
       - name: nginx-conf-volume
         configMap:
-          name: nginx-configmap
+          name: exam-fastapiapp-nginx-configmap
           items:
             - key: nginx_config.conf
               path: default.conf
