@@ -1,3 +1,4 @@
+# Exam Helm Values configuration
 applications:
 # POSTGRES MOVIES
   - name: postgresm
