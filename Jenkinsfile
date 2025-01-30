@@ -73,7 +73,7 @@ pipeline {
                     steps {
                         script {
                             sh '''
-                            curl http://localhost:8002/api/v1/casts/
+                            curl localhost:8002
                             '''
                         }
                     }
@@ -121,7 +121,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp fastapiapp/values.yaml values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace dev --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
+                    helm upgrade --install exam fastapiapp --values=values.yml --namespace dev --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
@@ -140,7 +140,7 @@ pipeline {
                     cat $KUBECONFIG > .kube/config
                     cp fastapiapp/values.yaml values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace qa --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
+                    helm upgrade --install exam fastapiapp --values=values.yml --namespace qa --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
@@ -159,7 +159,7 @@ pipeline {
                     cp fastapiapp/values.yaml values.yml
                     cat values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace staging --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
+                    helm upgrade --install exam fastapiapp --values=values.yml --namespace staging --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
@@ -184,7 +184,7 @@ pipeline {
                     cp fastapiapp/values.yaml values.yml
                     cat values.yml
                     sed -i "s+tag.*+tag: ${DOCKER_TAG}+g" values.yml
-                    helm upgrade --install exam ./fastapiapp --values=values.yml --namespace prod --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
+                    helm upgrade --install exam fastapiapp --values=values.yml --namespace prod --set applications[2].image.tag=$DOCKER_TAG --set applications[3].image.tag=$DOCKER_TAG
                     '''
                 }
             }
